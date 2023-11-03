@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Check if a host is on the network using ping
 
 if [ $# -ne 1 ]; then
