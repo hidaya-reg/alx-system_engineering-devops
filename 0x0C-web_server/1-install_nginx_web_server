@@ -5,10 +5,9 @@
 apt-get -y update
 apt-get -y install nginx
 
-# Ensure nginx is listening on port 80
-sed -i '/listen \[::\]:80 default_server/ s/#//' /etc/nginx/sites-available/default
+sudo sed -i '/listen 80 default_server/a rewrite ^/redirect_me https://www.youtube.com/ permanent;' /etc/nginx/sites-available/default
 
 # Add "Hello World!" to the default index.html
-echo "Hello World!" > /var/www/html/index.html
+sudo echo "Hello World!" > /var/www/html/index.html
 
 service nginx start
