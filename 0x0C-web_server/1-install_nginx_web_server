@@ -11,8 +11,4 @@ sed -i '/listen \[::\]:80 default_server/ s/#//' /etc/nginx/sites-available/defa
 # Add "Hello World!" to the default index.html
 echo "Hello World!" > /var/www/html/index.html
 
-# Restart nginx without using systemctl
-kill -s HUP $(cat /var/run/nginx.pid)
-
-# Exit the script with success status
-exit 0
+service nginx start
