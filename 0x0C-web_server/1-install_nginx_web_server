@@ -1,28 +1,18 @@
 #!/usr/bin/env bash
 # install nginx
-echo -e "Updating and installing Nginx.\n"
-sudo apt-get update -y -qq && \
-	 sudo apt-get install nginx -y
 
-echo -e "\nSetting up some minor stuff.\n"
+# Update package lists and install nginx
+apt-get -y update
+apt-get -y install nginx
 
-# starting nginx service
-sudo service nginx start
+# Ensure nginx is listening on port 80
+sed -i '/listen \[::\]:80 default_server/ s/#//' /etc/nginx/sites-available/default
 
-# allowing nginx on firewall
-sudo ufw allow 'Nginx HTTP'
+# Add "Hello World!" to the default index.html
+echo "Hello World!" > /var/www/html/index.html
 
-# Give the user ownership to website files for easy editing
-sudo chown -R "$USER":"$USER" /var/www/html
-sudo chmod -R 755 /var/www
+# Restart nginx without using systemctl
+kill -s HUP $(cat /var/run/nginx.pid)
 
-# Backup default index
-cp /var/www/html/index.nginx-debian.html /var/www/html/index.nginx-debian.html.bckp
-
-# Creating new index
-echo -e "Hello World!" | dd status=none of=/var/www/html/index.nginx-debian.html
-
-# Restarting nginx
-sudo service nginx restart
-
-echo -e "\nCompleted.\n"
+# Exit the script with success status
+exit 0
