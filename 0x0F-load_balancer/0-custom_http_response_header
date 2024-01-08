@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Install nginx on a new Ubuntu machine
+sudo apt-get -y update
+sudo apt-get -y install nginx
+
+# Get the hostname of the server
+HOSTNAME=$(hostname)
+
+# Configure Nginx to include a custom header
+sudo bash -c 'cat << EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    add_header X-Served-By $HOSTNAME;
+}
+EOF'
+
+# Restart Nginx to apply changes
+sudo service nginx restart
