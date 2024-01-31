@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Bash script that configures a server
+# Create a symbolic link to enable the default Nginx site configuration
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+# Restart the Nginx service to apply configuration changes
+service nginx restart
