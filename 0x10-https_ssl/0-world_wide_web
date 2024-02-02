@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Configure your domain zone so that the subdomain www points to your load-balancer IP (lb-01).
+# Let’s also add other subdomains to make our life easier, and write a Bash script that will display information about subdomains.
+
+info() {
+    local domain="$1"
+    local subdomain="$2"
+
+    if [ "$#" -eq 2 ]; then
+        local record="$(dig "${subdomain}.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
+        echo "The subdomain ${subdomain} is a A record and points to ${record}"
+    elif [ "$#" -eq 1 ]; then
+        local www_record="$(dig "www.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
+        local lb_record="$(dig "lb-01.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
+        local web1_record="$(dig "web-01.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
+        local web2_record="$(dig "web-02.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
+        
+        echo "The subdomain www is a A record and points to ${www_record}"
+        echo "The subdomain lb-01 is a A record and points to ${lb_record}"
+        echo "The subdomain web-01 is a A record and points to ${web1_record}"
+        echo "The subdomain web-02 is a A record and points to ${web2_record}"
+    fi
+}
+
+info "$@"
