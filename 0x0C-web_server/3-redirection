@@ -1,34 +1,18 @@
-#!/usr/bin/env bash
-# Install nginx on web server; Nginx should be listening on port 80
-# redirects to another page
-
+#!/bin/bash
+# Update package lists
 sudo apt-get -y update
+
+# Install Nginx
 sudo apt-get -y install nginx
+
+# Allow Nginx HTTP traffic
 sudo ufw allow 'Nginx HTTP'
-echo "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
-sudo tee /etc/nginx/sites-available/default >/dev/null <<'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
 
-    root /var/www/html;
-    index index.html index.htm;
+# Write "Hello World!" to the default Nginx HTML file
+echo "Hello World!" | sudo tee /var/www/html/index.nginx-debian.html > /dev/null
 
-    server_name _;
+# Add a redirection rule to Nginx configuration
+sudo sed -i "37i\rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;" /etc/nginx/sites-available/default
 
-    location / {
-        try_files $uri $uri/ =404;
-    }
-
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-}
-EOF
-
-# Remove default symbolic link and create a new one
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
-
-# Test Nginx configuration and reload Nginx
-sudo nginx -t && sudo systemctl reload nginx
+# Start Nginx service
+sudo service nginx start
