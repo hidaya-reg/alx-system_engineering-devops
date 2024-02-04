@@ -5,6 +5,30 @@
 sudo apt-get -y update
 sudo apt-get -y install nginx
 sudo ufw allow 'Nginx HTTP'
-echo "Hello World!" > sudo /var/www/html/index.nginx-debian.html
-sudo sed -i "37i\rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;" /etc/nginx/sites-available/default
-sudo service nginx start
+echo "Hello World!" > sudo /var/www/html/index.html
+sudo tee /etc/nginx/sites-available/default >/dev/null <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+}
+EOF
+
+# Remove default symbolic link and create a new one
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+# Test Nginx configuration and reload Nginx
+sudo nginx -t && sudo systemctl reload nginx
