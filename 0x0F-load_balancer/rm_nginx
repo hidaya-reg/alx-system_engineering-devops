@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+sudo service nginx stop
+sudo apt-get purge nginx nginx-common
+sudo apt-get autoremove
+sudo rm -rf /etc/nginx
+sudo rm -rf /var/log/nginx
+sudo rm -rf /var/www/html
+sudo delgroup nginx
+nginx -v
