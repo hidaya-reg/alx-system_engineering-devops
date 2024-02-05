@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
-# configure HAproxy on lb-01 server.
+# server-01
 
-# Setting up the SSH-agent
+
 eval $("ssh-agent")
-
-# Path to IdentityFile
 ssh-add ~/.ssh/school
 
-# Username and IP Address 
-ssh ubuntu@100.26.175.26
+ssh ubuntu@18.214.88.193
