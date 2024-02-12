@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Installs firewall
+
+
+# Update package lists
+sudo apt update
+
+# install ufw, support both IPv4 and IPv6, and ensure default values
+sudo apt install ufw -y
+
+# Reset ufw to default settings
+sudo ufw reset
+
+sudo sed -i "s/IPV6=no/IPV6=yes/" /etc/default/ufw
+
+# Set default policies
+sudo ufw default allow outgoing
+sudo ufw default deny incoming
+
+# Allow SSH, HTTP, and HTTPS
+sudo ufw allow 22/tcp  # SSH
+sudo ufw allow 80/tcp  # HTTP
+sudo ufw allow 443/tcp # HTTPS
+
+# enable UFW
+sudo ufw enable
+
+# Display the status to verify rules
+sudo ufw status
