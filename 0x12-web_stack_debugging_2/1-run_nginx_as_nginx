@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# nginx must be running as nginx user
 
 # Stop Nginx if it's already running
 nginx -s quit

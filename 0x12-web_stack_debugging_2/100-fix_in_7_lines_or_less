@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Making nginx run as nginx, must be listening on port 8080
+
+sed -i 's/^user .*/user nginx/' /etc/nginx/nginx.conf
+sed -i 's/^listen\s*80.*/listen 8080/' /etc/nginx/sites-available/default
+useradd -r -s /sbin/nologin nginx
+chown -R nginx:nginx /var/log/nginx /var/lib/nginx
+systemctl stop nginx
+systemctl start nginx
