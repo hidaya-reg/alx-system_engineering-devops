@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Stop Nginx if it's already running
+nginx -s quit
+
+# Remove the Nginx user if it exists
+userdel nginx
+
+# Add the Nginx user with restricted permissions
+useradd -r -s /sbin/nologin nginx
+
+# Set ownership of Nginx directories
+chown -R nginx:nginx /var/log/nginx /var/lib/nginx
+
+# Edit Nginx configuration file to run as nginx user
+sed -i 's/user\s*nginx;/user nginx;/' /etc/nginx/nginx.conf
+
+# Edit Nginx configuration file to listen on all active IPs on port 8080
+sed -i 's/listen\s*80;/listen 8080;/' /etc/nginx/nginx.conf
+
+# Restart Nginx
+nginx
+
+# Check if Nginx is running as nginx user and listening on port 8080
+ps auxff | grep ngin[x]
+nc -z 0 8080 ; echo $?
