@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+scp -o StrictHostKeyChecking=no -i ~/.ssh/school "$1" ubuntu@54.237.81.77:~
