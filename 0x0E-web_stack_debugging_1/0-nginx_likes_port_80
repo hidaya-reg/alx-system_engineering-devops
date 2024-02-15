@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Bash script that configures a server
 # Create a symbolic link to enable the default Nginx site configuration
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+# remove default config file for nginx
+rm /etc/nginx/sites-enabled/default
+# configure nginx to listen on port 80
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 # Restart the Nginx service to apply configuration changes
 service nginx restart
