@@ -1,52 +1,34 @@
 #!/usr/bin/python3
-"""Script that fetches info about a given employee using an API
-and exports it in JSON format
-"""
+"""Script to export data in JSON format"""
 
 import json
 import requests
 import sys
 
-BASE_URL = 'https://jsonplaceholder.typicode.com'
-
 if __name__ == "__main__":
-    # Check if user ID is provided as argument
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <user_id>")
-        sys.exit(1)
-
     user_id = sys.argv[1]
 
-    # Get user info
-    user_response = requests.get(f"{BASE_URL}/users/{user_id}")
-    
-    # Check if the request was successful
-    if user_response.status_code != 200:
-        print(f"Error: Unable to fetch user data for user ID {user_id}")
-        sys.exit(1)
+    base_url = 'https://jsonplaceholder.typicode.com'
+    user_url = f'{base_url}/users/{user_id}'
+    tasks_url = f'{base_url}/todos?userId={user_id}'
 
-    try:
-        user_data = user_response.json()
-        user_name = user_data[0].get('username')
+    response_user = requests.get(user_url)
+    user_data = response_user.json()
+    username = user_data[0].get('username')
 
-        # Get user's todo tasks
-        tasks_response = requests.get(f"{BASE_URL}/todos?userId={user_id}")
-        tasks_data = tasks_response.json()
+    response_todo = requests.get(tasks_url)
+    todo_data = response_todo.json()
 
-        # Build JSON data
-        user_tasks = []
-        for task in tasks_data:
-            user_tasks.append({
+    data_to_export = {
+        str(user_id): [
+            {
                 "task": task['title'],
                 "completed": task['completed'],
-                "username": user_name
-            })
+                "username": username
+            }
+            for task in todo_data
+        ]
+    }
 
-        # Write JSON data to file
-        filename = f"{user_id}.json"
-        with open(filename, 'w', encoding='UTF8') as json_file:
-            json.dump({user_id: user_tasks}, json_file, indent=4)
-
-        print(f"JSON data exported to {filename} successfully.")
-    except Exception as e:
-        print(f"Error: {e}")
+    with open(f"{user_id}.json", 'w') as json_file:
+        json.dump(data_to_export, json_file, indent=4)
