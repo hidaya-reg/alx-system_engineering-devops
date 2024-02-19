@@ -19,25 +19,34 @@ if __name__ == "__main__":
 
     # Get user info
     user_response = requests.get(f"{BASE_URL}/users/{user_id}")
-    user_data = user_response.json()
+    
+    # Check if the request was successful
+    if user_response.status_code != 200:
+        print(f"Error: Unable to fetch user data for user ID {user_id}")
+        sys.exit(1)
 
-    # Extract user data
-    user_name = user_data[0].get('username')
+    try:
+        user_data = user_response.json()
+        user_name = user_data[0].get('username')
 
-    # Get user's todo tasks
-    tasks_response = requests.get(f"{BASE_URL}/todos?userId={user_id}")
-    tasks_data = tasks_response.json()
+        # Get user's todo tasks
+        tasks_response = requests.get(f"{BASE_URL}/todos?userId={user_id}")
+        tasks_data = tasks_response.json()
 
-    # Build JSON data
-    user_tasks = []
-    for task in tasks_data:
-        user_tasks.append({
-            "task": task['title'],
-            "completed": task['completed'],
-            "username": user_name
-        })
+        # Build JSON data
+        user_tasks = []
+        for task in tasks_data:
+            user_tasks.append({
+                "task": task['title'],
+                "completed": task['completed'],
+                "username": user_name
+            })
 
-    # Write JSON data to file
-    filename = f"{user_id}.json"
-    with open(filename, 'w', encoding='UTF8') as json_file:
-        json.dump({user_id: user_tasks}, json_file, indent=4)
+        # Write JSON data to file
+        filename = f"{user_id}.json"
+        with open(filename, 'w', encoding='UTF8') as json_file:
+            json.dump({user_id: user_tasks}, json_file, indent=4)
+
+        print(f"JSON data exported to {filename} successfully.")
+    except Exception as e:
+        print(f"Error: {e}")

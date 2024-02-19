@@ -1,46 +1,45 @@
 #!/usr/bin/python3
-"""Script that fetches info about a given employee's ID using an API"""
+"""Gather data from an API"""
 
-import json
 import requests
 import sys
 
-BASE_URL = 'https://jsonplaceholder.typicode.com'
 
-if __name__ == "__main__":
-    user_id = sys.argv[1]
+def fetch_employee_data(employee_id):
+    """Fetches employee data from the API"""
+    base_url = "https://jsonplaceholder.typicode.com"
+    employee_url = f"{base_url}/users/{employee_id}"
+    todo_url = f"{employee_url}/todos"
 
-    # Get user info e.g https://jsonplaceholder.typicode.com/users/1/
-    user_url = f'{BASE_URL}/users?id={user_id}'
+    # Fetch employee data
+    employee_response = requests.get(employee_url)
+    employee_data = employee_response.json()
+    employee_name = employee_data.get('name')
 
-    # Get info from API
-    user_response = requests.get(user_url)
-    user_data = user_response.json()
+    # Fetch todo tasks
+    todo_response = requests.get(todo_url)
+    todo_tasks = todo_response.json()
 
-    # Extract user data, in this case, the name of the employee
-    name = user_data[0].get('name')
+    return employee_name, todo_tasks
 
-    # Get user info about todo tasks
-    tasks_url = f'{BASE_URL}/todos?userId={user_id}'
 
-    # Get info from API
-    tasks_response = requests.get(tasks_url)
-    tasks_data = tasks_response.json()
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <employee_id>")
+        sys.exit(1)
 
-    # Initialize completed count as 0 and find the total number of tasks
-    completed = 0
-    total_tasks = len(tasks_data)
+    employee_id = sys.argv[1]
 
-    # Initialize an empty list for completed tasks
-    completed_tasks = []
+    try:
+        employee_name, todo_tasks = fetch_employee_data(employee_id)
+        total_tasks = len(todo_tasks)
+        completed_tasks = sum(task['completed'] for task in todo_tasks)
 
-    # Loop through tasks counting the number of completed tasks
-    for task in tasks_data:
-        if task.get('completed'):
-            completed_tasks.append(task)
-            completed += 1
+        print(f"Employee {employee_name} is done with tasks({completed_tasks}/"
+              f"{total_tasks}):")
+        for task in todo_tasks:
+            if task['completed']:
+                print(f"\t{task['title']}")
 
-    # Print the output in the required format
-    print(f"Employee {name} is done with tasks({completed}/{total_tasks}):")
-    for task in completed_tasks:
-        print(f"\t{task.get('title')}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
