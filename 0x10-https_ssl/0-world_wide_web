@@ -14,7 +14,7 @@ info() {
         local lb_record="$(dig "lb-01.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
         local web1_record="$(dig "web-01.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
         local web2_record="$(dig "web-02.${domain}" | awk '/A\t[0-9]/' | tr '\t ' '~' | cut -d '~' -f 5-11)"
-        
+
         echo "The subdomain www is a A record and points to ${www_record}"
         echo "The subdomain lb-01 is a A record and points to ${lb_record}"
         echo "The subdomain web-01 is a A record and points to ${web1_record}"
