@@ -1,33 +1,40 @@
 #!/usr/bin/python3
-"""
-Script to export data in JSON format for all employees
-"""
-
-import json
+""" Gather data from an API and export to JSON """
 import requests
-from sys import argv
+import json
 
-if __name__ == "__main__":
-    base_url = 'https://jsonplaceholder.typicode.com'
 
-    # Get users
-    users = requests.get(f'{base_url}/users').json()
+def todo_all_employees():
+    """ Gather data from an API and export to JSON """
+    users_url = "https://jsonplaceholder.typicode.com/users"
+    todos_url = "https://jsonplaceholder.typicode.com/todos"
 
-    # Get todos
-    todos = requests.get(f'{base_url}/todos').json()
+    response_users = requests.get(users_url)
+    users = response_users.json()
 
-    # Create dictionary to store user tasks
-    tasks_by_user = {}
+    todos_response = requests.get(todos_url)
+    todos = todos_response.json()
+
+    user_tasks = {}
 
     for user in users:
         user_id = user.get('id')
         username = user.get('username')
-        tasks = [{"username": username,
-                  "task": task.get('title'),
-                  "completed": task.get('completed')}
-                 for task in todos if task.get('userId') == user_id]
-        tasks_by_user[str(user_id)] = tasks
+        user_tasks[user_id] = []
 
-    # Export data to JSON file
-    with open('todo_all_employees.json', 'w') as json_file:
-        json.dump(tasks_by_user, json_file)
+        for todo in todos:
+            if todo.get('userId') == user_id:
+                task = {
+                        "username": username,
+                        "task": todo.get('title'),
+                        "completed": todo.get('completed')
+                        }
+                user_tasks[user_id].append(task)
+
+
+    with open('todo_all_employees.json', mode='w') as file:
+        json.dump(user_tasks, file)
+
+
+if __name__ == '__main__':
+    todo_all_employees()

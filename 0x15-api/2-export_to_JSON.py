@@ -1,34 +1,39 @@
 #!/usr/bin/python3
-"""Script to export data in JSON format"""
-
-import json
+""" Gather data from an API and export to JSON """
 import requests
-import sys
+import json
+from sys import argv
 
-if __name__ == "__main__":
-    user_id = sys.argv[1]
 
-    base_url = 'https://jsonplaceholder.typicode.com'
-    user_url = f'{base_url}/users/{user_id}'
-    tasks_url = f'{base_url}/todos?userId={user_id}'
+def export_to_json(user_id):
+    """ Gather data from an API and export to JSON """
+    users_url = "https://jsonplaceholder.typicode.com/users"
+    todos_url = "https://jsonplaceholder.typicode.com/todos"
 
-    response_user = requests.get(user_url)
-    user_data = response_user.json()
-    username = user_data[0].get('username')
+    todos_response = requests.get(f"{todos_url}?userId={user_id}")
+    todos_data = todos_response.json()
 
-    response_todo = requests.get(tasks_url)
-    todo_data = response_todo.json()
+    user_response = requests.get(f"{users_url}?id={user_id}")
+    user_data = user_response.json()
+    username = user_data[0]["username"]
 
-    data_to_export = {
-        str(user_id): [
-            {
-                "task": task['title'],
-                "completed": task['completed'],
-                "username": username
-            }
-            for task in todo_data
-        ]
-    }
+    user_tasks = []
+    for task in todos_data:
+        user_tasks.append({
+            "task": task["title"],
+            "completed": task["completed"],
+            "username": username
+        })
 
-    with open(f"{user_id}.json", 'w') as json_file:
-        json.dump(data_to_export, json_file, indent=4)
+    json_file_name = f"{user_id}.json"
+
+    with open(json_file_name, mode='w') as file:
+        json.dump({user_id: user_tasks}, file)
+
+
+if __name__ == '__main__':
+    if len(argv) < 2:
+        exit()
+
+    user_id = argv[1]
+    export_to_json(user_id)

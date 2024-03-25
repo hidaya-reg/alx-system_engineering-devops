@@ -4,12 +4,8 @@ import requests
 from sys import argv
 
 
-def gather_data():
+def gather_data(user_id):
     """ Gather data from an API """
-    if len(argv) < 2:
-        exit()
-
-    user_id = argv[1]
     users_url = "https://jsonplaceholder.typicode.com/users"
     todos_url = "https://jsonplaceholder.typicode.com/todos"
 
@@ -29,4 +25,7 @@ def gather_data():
 
 
 if __name__ == '__main__':
-    gather_data()
+    if len(argv) < 2:
+        exit()
+    user_id = argv[1]
+    gather_data(user_id)

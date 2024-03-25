@@ -20,7 +20,7 @@ def first_line(id):
         if i['id'] == id:
             name = i['name']
 
-    filename = 'student_output'
+    filename = 'res'
 
     with open(filename, 'r') as f:
         first = f.readline().strip()
