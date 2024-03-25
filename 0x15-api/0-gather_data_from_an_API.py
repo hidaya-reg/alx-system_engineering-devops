@@ -27,5 +27,5 @@ def gather_data(user_id):
 if __name__ == '__main__':
     if len(argv) < 2:
         exit()
-    user_id = argv[1]
+    user_id = int(argv[1])
     gather_data(user_id)
