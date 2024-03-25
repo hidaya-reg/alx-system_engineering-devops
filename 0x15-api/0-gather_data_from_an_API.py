@@ -6,26 +6,37 @@ from sys import argv
 
 def gather_data(user_id):
     """ Gather data from an API """
+    completed = 0
+    total = 0
+
     users_url = "https://jsonplaceholder.typicode.com/users"
     todos_url = "https://jsonplaceholder.typicode.com/todos"
 
-    todos_response = requests.get(f"{todos_url}?userId={user_id}")
-    todos_data = todos_response.json()
+    todos_data = requests.get(todos_url).json()
 
-    user_response = requests.get(f"{users_url}?id={user_id}")
-    user_data = user_response.json()
-    user_name = user_data[0]["name"]
-    completed_tasks = [task for task in todos_data if task["completed"]]
-    completed = len(completed_tasks)
-    total = len(todos_data)
+    users_data = requests.get(users_url).json()
+
+    name = None
+    for user in users_data:
+
+        if user["id"] == int(user_id):
+            name = user["name"]
+
+    for todo in todos_data:
+        if todo['userId'] == user_id:
+            total += 1
+        if (todo['completed'] and todo['userId'] == user_id):
+            completed += 1
+
     print("Employee {} is done with tasks ({}/{}):".format(
-        user_name, completed, total))
-    for task in completed_tasks:
-        print("\t{}".format(task['title']))
+        name, completed, total))
+    for todo in todos_data:
+        if todo["userId"] == user_id and todo['completed']:
+            print("\t{}".format(todo['title']))
 
 
 if __name__ == '__main__':
     if len(argv) < 2:
         exit()
-    user_id = argv[1]
+    user_id = int(argv[1])
     gather_data(user_id)
