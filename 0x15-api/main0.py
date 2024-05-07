@@ -27,8 +27,10 @@ def first_line(id):
 
     if name in first:
         print("Employee Name: OK")
+        print(len(name), 'chars long')
     else:
         print("Employee Name: Incorrect")
+        print(len(name), 'chars long')
 
 
 if __name__ == "__main__":
