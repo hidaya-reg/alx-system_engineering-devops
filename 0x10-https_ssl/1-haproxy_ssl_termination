@@ -51,8 +51,8 @@ frontend https_front
 backend http_back
         balance roundrobin
         redirect scheme https code 301 if !{ ssl_fc }
-        server 368897-web-01 100.26.225.15:80 check
-        server 368897-web-02 54.237.106.87:80 check
+        server 368897-web-01 3.90.70.246:80 check
+        server 368897-web-02 3.90.81.198:80 check
 
 backend letsencrypt-backend
         server letsencrypt 127.0.0.1:54321
