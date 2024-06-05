@@ -31,7 +31,7 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server web1 100.26.225.15:80 check
-    server web2 54.237.106.87:80 check
+    server web1 54.227.200.225:80 check
+    server web2 35.153.16.66:80 check
 EOF
 sudo service haproxy restart
