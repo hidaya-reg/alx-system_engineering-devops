@@ -99,6 +99,7 @@ done
 - ``$item`` holds the current item in each iteration.
 
 **Example 2: Using a Range of Numbers**
+- Brace Expansion Loop:
 ```bash
 #!/bin/bash
 
@@ -106,10 +107,18 @@ for i in {1..5}; do
   echo "Number: $i"
 done
 ```
-Explanation:
+**Explanation:**
 - ``{1..5}``: Specifies a range from 1 to 5.
 - The loop runs once for each number in the range.
 
+- **C-style Loop:**
+```bash
+#!/bin/bash
+
+for ((i = 1; i <= 5; i++)); do
+  echo "Number: $i"
+done
+```
 **Example 3: Using ``seq`` to Define a Range with Steps**
 ```bash
 #!/bin/bash
