@@ -588,6 +588,49 @@ Name: Alice      Age: 30
 Name: Bob        Age: 25 
 Name: Charlie    Age: 35 
 ```
+#### ``END`` block
+In awk, the ``END`` block is a special block that is executed after all the input lines have been processed. It allows you to perform actions or calculations after you've read the entire input, which is particularly useful for summarizing data or outputting final results.
+**How END Works**
+- Placement: The ``END`` block comes after the main pattern-action blocks in an ``awk`` command.
+- Execution: It is executed only once, after all the input data has been processed. If you have multiple ``END`` blocks, they are executed in the order they appear in the script.
+- Common Use Cases: It is commonly used for printing summaries, totals, or any other data that needs to be displayed after processing the entire input.
+**Example of Using END**
+```bash
+echo -e "Alice 90\nBob 85\nCharlie 88" | awk '{ total += $2 } END { print "Average score:", total/NR }'
+```
+Explanation:
+- Input: The command feeds a list of names and scores into awk.
+- Processing:
+    + In the main block (``{ total += $2 }``), for each line, it adds the second field (the score) to the ``total`` variable.
+- END Block: After processing all lines:
+    + ``END { print "Average score:", total/NR }`` computes the average score by dividing the total by ``NR``, which is a built-in variable representing the number of records (lines) processed. It then prints the average.
+*Output:* ``Average score: 87.6667``
+#### Some commonly used built-in variables in awk
+
+| Built-in Variable | Description                                           | Example                                      |
+|-------------------|-------------------------------------------------------|----------------------------------------------|
+| `$0`              | Represents the entire current input line              | `print $0`                                   |
+| `$n`              | Represents the nth field in the current input line    | `print $1` (outputs the first field)        |
+| `NR`              | Total number of input records read so far             | `print "Line number:", NR`                  |
+| `NF`              | Number of fields in the current input line            | `print "Number of fields:", NF`             |
+| `FNR`             | Record number in the current input file                | `print "Line number in current file:", FNR` |
+| `FS`              | Input field separator (default: whitespace)           | `BEGIN { FS="," }`                           |
+| `OFS`             | Output field separator (default: space)               | `BEGIN { OFS=" | " }`                        |
+| `RS`              | Input record separator (default: newline)             | `BEGIN { RS=";" }`                           |
+| `ORS`             | Output record separator (default: newline)            | `BEGIN { ORS=", " }`                         |
+| `ARGC`            | Number of command-line arguments passed               | `print "Number of arguments:", ARGC`        |
+| `ARGV`            | Array containing the command-line arguments           | `print "First argument:", ARGV[1]`          |
+
+**Example Usage**
+```bash
+echo -e "Alice 90\nBob 85\nCharlie 88" | awk '{ print $1, "has score:", $2, "Total lines processed:", NR, "Fields in line:", NF }'
+```
+*Output:*
+```
+Alice has score: 90 Total lines processed: 1 Fields in line: 2
+Bob has score: 85 Total lines processed: 2 Fields in line: 2
+Charlie has score: 88 Total lines processed: 3 Fields in line: 2
+```
 #### Summary
 ``awk`` is a versatile tool for text processing and can be used for various tasks, including data extraction, reporting, and simple calculations. Here are some key points to remember:
 
@@ -596,7 +639,70 @@ Name: Charlie    Age: 35
 - Built-in Variables: Simplifies data manipulation.
 - Scripting Capabilities: Supports complex operations through its programming language features.
 </details>
+<details>
+<summary>What's an associative array</summary>
 
+### Associative array
+An associative array is a data structure that allows you to store data in key-value pairs. Unlike regular arrays, which use numerical indices, associative arrays use strings as keys. This makes it easy to retrieve, add, or manipulate values based on descriptive keys rather than numerical positions.
+#### Key Features of Associative Arrays
+**1. Key-Value Pairs:** Each entry in an associative array consists of a unique key and a corresponding value. You can think of it like a dictionary, where each word (key) maps to its definition (value).
+**2. Dynamic Sizing:** Associative arrays can grow dynamically as you add new key-value pairs, so you don't need to specify the size in advance.
+**3. Flexible Keys:** The keys can be any string, allowing you to use descriptive names that make your code more readable and understandable.
+
+#### Example of Associative Arrays in Bash
+In bash, associative arrays are declared and used with the following syntax:
+
+- **Declaring an Associative Array**
+```bash
+declare -A my_array
+```
+- **Adding Key-Value Pairs**
+```bash
+my_array["key1"]="value1"
+my_array["key2"]="value2"
+```
+- **Accessing Values**
+```bash
+echo "${my_array["key1"]}"  # Output: value1
+```
+- **Iterating Over an Associative Array**
+```bash
+for key in "${!my_array[@]}"; do
+    echo "$key: ${my_array[$key]}"
+done
+```
+Example Use Case
+```bash
+#!/bin/bash
+
+declare -A fruits
+
+# Adding fruit names and their colors
+fruits["apple"]="red"
+fruits["banana"]="yellow"
+fruits["grape"]="purple"
+
+# Printing out fruit colors
+for fruit in "${!fruits[@]}"; do
+    echo "$fruit is ${fruits[$fruit]}."
+done
+```
+*Output:*
+```plaintext
+apple is red.
+banana is yellow.
+grape is purple.
+```
+#### Use of Associative Arrays in awk
+In ``awk``, associative arrays are similar but can be used without explicit declaration. The keys can be any string, and you can access values in the same way:
+```awk
+awk '{ count[$1]++ } END { for (word in count) print word, count[word] }' input.txt
+```
+In this example, count[$1]++ counts occurrences of each unique value in the first field of the input file, using the values as keys in the associative array count.
+
+Summary
+Associative arrays are powerful tools for organizing and managing data in a more intuitive way, allowing for quick lookups and manipulations based on descriptive keys. They are widely used in scripting and programming for tasks that involve data aggregation and management.
+</details>
 
 ## More Info
 ### Shellcheck
