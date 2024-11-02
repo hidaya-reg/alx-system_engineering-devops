@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+PID=$( pgrep -f test )
+pkill -f -SIGKILL test

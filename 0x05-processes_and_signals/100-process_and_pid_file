@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Process and PID file
+
+PIDFILE="/var/run/myscript.pid"
+
+echo $$ > "$PIDFILE"
+cleanup() {
+    echo "I hate the kill command"
+    rm -f "$PIDFILE"
+    exit 1
+}
+loveme() {
+    echo "Y U no love me?!"
+    rm -f "$PIDFILE"
+    exit 1
+}
+quit() {
+    rm -f "$PIDFILE"
+    exit 1
+}
+trap cleanup SIGTERM
+trap loveme SIGINT
+trap quit SIGQUIT
+
+while true; do
+    echo "To infinity and beyond"
+    sleep 2
+done
