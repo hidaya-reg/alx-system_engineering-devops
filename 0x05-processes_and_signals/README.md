@@ -555,7 +555,122 @@ kill -0 $(cat /var/run/my_script.pid) && echo "Script is running"
 
 </details>
 <details>
-<summary></summary>
+<summary>what a zombie process is</summary>
+
+### Zombie Processes
+- **Definition:** **zombie process** is a process that has completed its execution but still has an entry in the process table. This situation happens when a process has finished running, but its **parent process** has not yet acknowledged its termination.
+- **State:** When a child process terminates, it sends a signal (specifically, ``SIGCHLD``) to its parent process. The child process remains in a **defunct** state until the parent reads its exit status. This ensures that the system can keep track of the process's termination status and resource usage.
+- **Representation:** In the output of commands like ``ps``, zombie processes are shown with the status ``Z`` and the ``<defunct>`` tag. For example:
+```bash
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+user     13527  0.0  0.0      0     0 ?        Z      01:19   0:00 [zombie] <defunct>
+```
+In this output:
+- ``PID``: The process ID of the zombie.
+- ``STAT``: The process status (``Z`` indicates it is a zombie).
+- ``<defunct>``: Indicates that this process is no longer running but still exists in the process table as a zombie.
+#### How Zombie Processes are Created
+- When a child process finishes execution, it sends a **SIGCHLD** signal to the parent process.
+- The **parent process** is supposed to read the child's **exit status** using the ``wait()`` or ``waitpid()`` system calls.
+- If the parent process does not call ``wait()``, the child process cannot be fully removed from the process table, leaving it as a zombie.
+#### Characteristics of a Zombie Process
+- **Process ID (PID)** is still in the process table.
+- The process does **not use any system resources** (like memory or CPU time) since it has already terminated.
+- It appears in ``ps`` output with a status of **"Z"** (for "zombie").
+#### Why Zombie Processes Matter
+- One or two zombies are usually harmless because they don’t consume system resources.
+- **Accumulation** of zombie processes can lead to exhaustion of available PIDs, which can impact system stability and the ability to start new processes.
+#### Identifying a Zombie Process
+You can find zombie processes using the ``ps`` command:
+```bash
+ps aux | grep 'Z'
+```
+Or by looking specifically for the status field "Z":
+```bash
+ps -eo pid,ppid,stat,cmd | grep 'Z'
+```
+#### Example of a Zombie Process
+Here's a simple scenario:
+```bash
+#!/bin/bash
+
+# Parent script spawns a child process
+( sleep 5 ) &
+
+# Parent does not call wait on the child
+# Child completes, becomes a zombie
+```
+The child process in this script will finish after 5 seconds, but if the parent script doesn't call wait, the child becomes a zombie until the parent terminates.
+#### Handling Zombies: To prevent zombie processes:
+- Ensure that the parent process uses ``wait()`` or ``waitpid()`` to read the exit status of its child processes.
+- Use signal handlers to properly handle ``SIGCHLD`` signals.
+#### Cleaning Up Zombie Processes
+To remove zombies:
+1. **Restart the parent process:** Often, terminating or restarting the parent will force it to collect the child’s exit status, clearing the zombie.
+2. **Kill the parent process:** This turns the zombie’s parent into ``init`` (PID 1), which will automatically clean up zombie children.
+In more complex systems, parent processes should handle ``SIGCHLD`` signals properly to ``wait()`` for any terminated child processes and prevent zombies from forming.
+</details>
+<details>
+<summary>What is fork() and how to use it</summary>
+
+### System call `fork()`
+``fork()`` is a system call in Unix-like operating systems that creates a new process by duplicating the calling process. The new process is called the **child process**, while the original process is referred to as the **parent process**. Both processes will continue execution from the point where the ``fork()`` call was made.
+
+#### How ``fork()`` Works
+**1. Process Creation:** When a process calls ``fork()``, the operating system creates a new process. This new process is an exact copy of the parent process, with its own unique Process ID (PID).
+2. Return Value:
+    + In the **parent process**, ``fork()`` returns the child's PID.
+    + In the **child process**, ``fork()`` returns ``0``.
+    + If an error occurs, ``fork()`` returns ``-1`` in the parent process, and no child process is created.
+**3. Separate Memory Space:** After the fork, both processes execute independently and have separate memory spaces. Changes made by one process do not affect the other.
+#### Using ``fork()``
+Here's a simple example demonstrating how to use ``fork()`` in a C program:
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main() {
+    pid_t pid;
+    int status;
+
+    // Create a new process
+    pid = fork();
+
+    // Error handling
+    if (pid < 0) {
+        perror("fork failed");
+        return 1; // Exit with an error code
+    }
+
+    // This block is executed by the parent process
+    if (pid > 0) {
+        printf("Parent process, PID: %d\n", getpid());
+        printf("Child process created with PID: %d\n", pid);
+        
+        // Wait for the child process to finish
+        wait(&status);
+        printf("Child process (PID: %d) exited with status: %d\n", pid, WEXITSTATUS(status));
+    }
+
+    // This block is executed by the child process
+    else {
+        printf("Child process, PID: %d, Parent PID: %d\n", getpid(), getppid());
+        // Simulate some work in the child process
+        sleep(2); // The child will sleep for 2 seconds
+        exit(0);  // The child exits successfully
+    }
+
+    return 0; // Both parent and child will reach this point
+}
+```
+#### Key Points
+- **Process Isolation:** Each process has its own memory space, and they can run concurrently.
+- **Use Cases:** Commonly used to create new processes for handling tasks such as executing different programs or handling client requests in server applications.
+- **Zombie Processes:** If the parent process does not call ``wait()`` or ``waitpid()`` after a child process exits, the child can become a zombie process.
+
 </details>
 <details>
 <summary></summary>
@@ -563,13 +678,6 @@ kill -0 $(cat /var/run/my_script.pid) && echo "Script is running"
 <details>
 <summary></summary>
 </details>
-<details>
-<summary></summary>
-</details>
-
-
-
-
 
 ## Tasks
 ### 0. What is my PID
