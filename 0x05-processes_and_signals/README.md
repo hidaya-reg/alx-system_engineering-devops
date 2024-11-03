@@ -320,6 +320,7 @@ fg %1  # Brings job 1 to the foreground
 ```
 
 #### Job Control Commands
+**Jobs are shell-specific:** The ``jobs`` command only displays background tasks in the current shell session.
 - ``jobs``: Lists all jobs started in the current shell session, showing their status (running, stopped, etc.) and job IDs.
 ```bash
 $ jobs
@@ -488,7 +489,70 @@ exit 0
 - While ``init.d`` scripts are still in use, many modern distributions now prefer systemd for service management.
 </details>
 <details>
-<summary></summary>
+<summary>`nohup` command</summary>
+
+### `nohup` command
+``nohup`` (short for "no hang-up") is a command that allows a process to keep running in the background, even if you log out or close the terminal. Normally, when you close the terminal, processes started from that terminal receive a ``SIGHUP`` (hang-up) signal, which usually terminates them. ``nohup`` prevents this by ignoring the ``SIGHUP`` signal.
+
+#### Basic ``nohup`` Example
+```bash
+nohup ./my_script.sh &
+```
+- ``nohup`` tells the shell to ignore the ``SIGHUP`` signal, allowing the script to keep running.
+- ``./my_script.sh`` is the script or command you want to run.
+- ``&`` at the end places the process in the background, allowing you to continue using the terminal without waiting for the command to finish.
+#### Example Behavior
+**1. Without ``nohup``:**
+```bash
+./my_script.sh &
+```
+The script runs in the background, but if you close the terminal, it will receive a ``SIGHUP`` signal and likely terminate.
+**2. With ``nohup``:**
+```bash
+nohup ./my_script.sh &`
+```
+The script will keep running in the background even if you close the terminal, because ``nohup`` ignores the ``SIGHUP`` signal.
+#### Default Output with nohup
+If you don’t specify any output redirection, ``nohup`` automatically sends the output (both ``stdout`` and ``stderr``) to a file called ``nohup.out`` in the current directory.
+```bash
+nohup ./my_script.sh &
+# Output goes to nohup.out
+```
+#### Redirecting Output to a Custom File
+If you want to avoid ``nohup.out`` and specify your own output file, you can redirect the output like this:
+```bash
+nohup ./my_script.sh > my_output.log 2>&1 &
+```
+- ``> my_output.log`` redirects ``stdout`` to ``my_output.log``.
+- ``2>&1`` redirects ``stderr`` to the same location as stdout, so both ``stdout`` and ``stderr`` end up in ``my_output.log``.
+#### Example Scenario
+Imagine you have a script ``my_script.sh`` that performs some long-running task, like logging system status every minute. You want it to keep running, even if you log out. Here’s how you might use nohup:
+```bash
+#!/bin/bash
+while true; do
+    echo "Logging system status at $(date)" >> /tmp/system_status.log
+    sleep 60
+done
+```
+Running the Script with nohup:
+```bash
+nohup ./my_script.sh > /tmp/my_script_output.log 2>&1 &
+```
+**What Happens:**
+- The script runs in the background, keeps logging system status every minute to ``/tmp/system_status.log``.
+- The message Logging system status at... is redirected to ``/tmp/my_script_output.log``.
+- The process continues to run, even if you close the terminal.
+#### Checking the Running nohup Process
+To check if the script is still running, you can use:
+```bash
+ps aux | grep my_script.sh
+```
+Or, if you saved the ``PID`` to a file when running ``nohup`` (like in an init script), you can use ``cat`` to read the ``PID`` file and ``kill -0`` to check if it’s running:
+```bash
+cat /var/run/my_script.pid
+kill -0 $(cat /var/run/my_script.pid) && echo "Script is running"
+```
+
 </details>
 <details>
 <summary></summary>
